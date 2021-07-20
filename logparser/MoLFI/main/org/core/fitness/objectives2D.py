@@ -1,6 +1,6 @@
 from typing import List
 
-#from orderedset._orderedset import OrderedSet
+# from orderedset._orderedset import OrderedSet
 from numpy import median, mean
 
 from ..chromosome.chromosome import Chromosome
@@ -8,19 +8,18 @@ from ..utility.Chromosome_Generator import ChromosomeGenerator
 
 
 class Objective2D:
-
-    def __init__(self,  p_generator: ChromosomeGenerator):
+    def __init__(self, p_generator: ChromosomeGenerator):
         self.generator = p_generator
 
     # override method
     def compute_objective(self, chromosome: Chromosome):
-        """ Evaluate a chromosome
-                compute 2 objectives: 
-                        - frequency: #matched log messages ((/#log messages)/#templates)
-                        - specificity: fixed words / #words in a template
-                :param chromosome: the list of templates
-                :return: frequency value, specificity value
-                """
+        """Evaluate a chromosome
+        compute 2 objectives:
+                - frequency: #matched log messages ((/#log messages)/#templates)
+                - specificity: fixed words / #words in a template
+        :param chromosome: the list of templates
+        :return: frequency value, specificity value
+        """
         average_specificity = []
         average_frequency = []
 

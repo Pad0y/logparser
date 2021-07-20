@@ -4,14 +4,13 @@ from main.org.core.operators.crossover import *
 
 
 class Test(unittest.TestCase):
-
     def test_cx_chrom_percentage(self):
-        t11 = Template(['start', '*', 'conf'])
+        t11 = Template(["start", "*", "conf"])
         t12 = Template(["start", "send", "message", "from", "*"])
         ch1 = Chromosome({3: [t11], 5: [t12]})
 
-        t21 = Template(['*', '*', 'conf'])
-        t22 = Template(['Server', 'port', '*', 'at', 'vvvv'])
+        t21 = Template(["*", "*", "conf"])
+        t22 = Template(["Server", "port", "*", "at", "vvvv"])
         ch2 = Chromosome({3: [t21], 5: [t22]})
 
         offsp1, offsp2 = multipoint_cx(ch1, ch2)

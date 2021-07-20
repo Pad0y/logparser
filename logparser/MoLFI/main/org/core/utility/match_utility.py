@@ -3,10 +3,12 @@ from typing import List, Set
 from ..chromosome.chromosome import Chromosome
 from ..chromosome.template import Template
 from ..utility.message import Message
+
 """
     This utility contains methods used to control the templates
     
 """
+
 
 def compute_matched_lines(messages: dict, template: Template):
     # if the templates has not be changed
@@ -25,7 +27,7 @@ def compute_matched_lines(messages: dict, template: Template):
 
 
 def match(message: Message, template: Template):
-    """ Compare two lists of strings
+    """Compare two lists of strings
     :param message: a message from the log file
     :param template: a template from the chromosome
     :return: True if two list are equal
@@ -42,7 +44,7 @@ def match(message: Message, template: Template):
 
 
 def template_match(template1: Template, template2: Template):
-    """ Compare two lists of strings
+    """Compare two lists of strings
     :param template1: first template
     :param template2: second template
     :return: True if template1 is a "sub-set" of template2
@@ -79,10 +81,10 @@ def remove_super_templates(chromosome: Chromosome, cluster_id: int):
 
 
 def derive_sub_template(partition: List[Template], template_to_remove: Set[Template]):
-    for index1 in range(0, len(partition)-1):
+    for index1 in range(0, len(partition) - 1):
         template1 = partition[index1]
         set1 = set(template1.matched_lines)
-        for index2 in range(index1+1, len(partition)):
+        for index2 in range(index1 + 1, len(partition)):
             template2 = partition[index2]
             set2 = set(template2.matched_lines)
             if template1 == template2:
@@ -97,10 +99,10 @@ def derive_sub_template(partition: List[Template], template_to_remove: Set[Templ
 
 
 def derive_super_template(partition: List[Template], template_to_remove: Set[Template]):
-    for index1 in range(0, len(partition)-1):
+    for index1 in range(0, len(partition) - 1):
         template1 = partition[index1]
         set1 = set(template1.matched_lines)
-        for index2 in range(index1+1, len(partition)):
+        for index2 in range(index1 + 1, len(partition)):
             template2 = partition[index2]
             set2 = set(template2.matched_lines)
             if template1 == template2:

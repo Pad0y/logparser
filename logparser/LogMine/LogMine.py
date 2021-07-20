@@ -14,13 +14,15 @@ import pandas as pd
 from datetime import datetime
 from collections import defaultdict
 
-class partition():
+
+class partition:
     def __init__(self, idx, log="", lev=-1):
         self.logs_idx = [idx]
         self.patterns = [log]
         self.level = lev
 
-class LogParser():
+
+class LogParser:
     def __init__(self, indir, outdir, log_format, max_dist=0.001, levels=2, k=1, k1=1, k2=1, alpha=100, rex=[]):
         self.logformat = log_format
         self.path = indir
@@ -36,28 +38,27 @@ class LogParser():
         self.logname = None
         self.level_clusters = {}
 
-
     def parse(self, logname):
-        print('Parsing file: ' + os.path.join(self.path, logname))
+        print ("Parsing file: " + os.path.join(self.path, logname))
         self.logname = logname
         starttime = datetime.now()
         self.load_data()
         for lev in range(self.levels):
             if lev == 0:
                 # Clustering
-                self.level_clusters[0] = self.get_clusters(self.df_log['Content_'], lev)
+                self.level_clusters[0] = self.get_clusters(self.df_log["Content_"], lev)
             else:
                 # Clustering
-                patterns = [c.patterns[0] for c in self.level_clusters[lev-1]]
+                patterns = [c.patterns[0] for c in self.level_clusters[lev - 1]]
                 self.max_dist *= self.alpha
-                clusters = self.get_clusters(patterns, lev, self.level_clusters[lev-1])
+                clusters = self.get_clusters(patterns, lev, self.level_clusters[lev - 1])
 
                 # Generate patterns
                 for cluster in clusters:
                     cluster.patterns = [self.sequential_merge(cluster.patterns)]
                 self.level_clusters[lev] = clusters
         self.dump()
-        print('Parsing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
+        print ("Parsing done. [Time taken: {!s}]".format(datetime.now() - starttime))
 
     def dump(self):
         if not os.path.isdir(self.savePath):
@@ -66,27 +67,33 @@ class LogParser():
         templates = [0] * self.df_log.shape[0]
         ids = [0] * self.df_log.shape[0]
         templates_occ = defaultdict(int)
-        for cluster in self.level_clusters[self.levels-1]:
+        for cluster in self.level_clusters[self.levels - 1]:
             EventTemplate = cluster.patterns[0]
-            EventId = hashlib.md5(' '.join(EventTemplate).encode('utf-8')).hexdigest()[0:8]
+            EventId = hashlib.md5(" ".join(EventTemplate).encode("utf-8")).hexdigest()[0:8]
             Occurences = len(cluster.logs_idx)
             templates_occ[EventTemplate] += Occurences
 
             for idx in cluster.logs_idx:
                 ids[idx] = EventId
-                templates[idx]= EventTemplate
-        self.df_log['EventId'] = ids
-        self.df_log['EventTemplate'] = templates
+                templates[idx] = EventTemplate
+        self.df_log["EventId"] = ids
+        self.df_log["EventTemplate"] = templates
 
-        occ_dict = dict(self.df_log['EventTemplate'].value_counts())
+        occ_dict = dict(self.df_log["EventTemplate"].value_counts())
         df_event = pd.DataFrame()
-        df_event['EventTemplate'] = self.df_log['EventTemplate'].unique()
-        df_event['Occurrences'] = self.df_log['EventTemplate'].map(occ_dict)
-        df_event['EventId'] = self.df_log['EventTemplate'].map(lambda x: hashlib.md5(x.encode('utf-8')).hexdigest()[0:8])
+        df_event["EventTemplate"] = self.df_log["EventTemplate"].unique()
+        df_event["Occurrences"] = self.df_log["EventTemplate"].map(occ_dict)
+        df_event["EventId"] = self.df_log["EventTemplate"].map(
+            lambda x: hashlib.md5(x.encode("utf-8")).hexdigest()[0:8]
+        )
 
         self.df_log.drop("Content_", inplace=True, axis=1)
-        self.df_log.to_csv(os.path.join(self.savePath, self.logname + '_structured.csv'), index=False)
-        df_event.to_csv(os.path.join(self.savePath, self.logname + '_templates.csv'), index=False, columns=["EventId","EventTemplate","Occurrences"])
+        self.df_log.to_csv(os.path.join(self.savePath, self.logname + "_structured.csv"), index=False)
+        df_event.to_csv(
+            os.path.join(self.savePath, self.logname + "_templates.csv"),
+            index=False,
+            columns=["EventId", "EventTemplate", "Occurrences"],
+        )
 
     def get_clusters(self, logs, lev, old_clusters=None):
         clusters = []
@@ -103,12 +110,12 @@ class LogParser():
                         cluster.patterns.append(old_clusters[logidx].patterns[0])
                     match = True
 
-            if not match: 
+            if not match:
                 if lev == 0:
-                    clusters.append(partition(logidx, log, lev)) # generate new cluster
+                    clusters.append(partition(logidx, log, lev))  # generate new cluster
                 else:
                     old_clusters[logidx].level = lev
-                    clusters.append(old_clusters[logidx]) # keep old cluster
+                    clusters.append(old_clusters[logidx])  # keep old cluster
 
         return clusters
 
@@ -122,7 +129,7 @@ class LogParser():
         loga, logb = alignment.water(loga.split(), logb.split())
         logn = []
         for idx, value in enumerate(loga):
-            logn.append('<*>' if value != logb[idx] else value)
+            logn.append("<*>" if value != logb[idx] else value)
         return " ".join(logn)
 
     def print_cluster(self, cluster):
@@ -132,7 +139,7 @@ class LogParser():
         print "patterns: {}".format(cluster.patterns)
         print "count: {}".format(len(cluster.patterns))
         for idx in cluster.logs_idx:
-            print self.df_log.iloc[idx]['Content_']
+            print self.df_log.iloc[idx]["Content_"]
         print "------end------"
 
     def msgDist(self, seqP, seqQ):
@@ -142,7 +149,7 @@ class LogParser():
         maxlen = max(len(seqP), len(seqQ))
         minlen = min(len(seqP), len(seqQ))
         for i in range(minlen):
-            dis -= (self.k if seqP[i]==seqQ[i] else 0 * 1.0) / maxlen
+            dis -= (self.k if seqP[i] == seqQ[i] else 0 * 1.0) / maxlen
         return dis
 
     def patternDist(self, seqP, seqQ):
@@ -162,18 +169,18 @@ class LogParser():
     def load_data(self):
         def preprocess(line):
             for currentRex in self.rex:
-                line = re.sub(currentRex, '', line)
+                line = re.sub(currentRex, "", line)
             return line
 
         headers, regex = self.generate_logformat_regex(self.logformat)
         self.df_log = self.log_to_dataframe(os.path.join(self.path, self.logname), regex, headers, self.logformat)
-        self.df_log['Content_'] = self.df_log['Content'].map(preprocess)
+        self.df_log["Content_"] = self.df_log["Content"].map(preprocess)
 
     def log_to_dataframe(self, log_file, regex, headers, logformat):
-        ''' Function to transform log file to dataframe '''
+        """Function to transform log file to dataframe"""
         log_messages = []
         linecount = 0
-        with open(log_file, 'r') as fin:
+        with open(log_file, "r") as fin:
             for line in fin.readlines():
                 try:
                     match = regex.search(line.strip())
@@ -183,24 +190,24 @@ class LogParser():
                 except Exception as e:
                     pass
         logdf = pd.DataFrame(log_messages, columns=headers)
-        logdf.insert(0, 'LineId', None)
-        logdf['LineId'] = [i + 1 for i in range(linecount)]
+        logdf.insert(0, "LineId", None)
+        logdf["LineId"] = [i + 1 for i in range(linecount)]
         return logdf
 
     def generate_logformat_regex(self, logformat):
-        ''' 
+        """
         Function to generate regular expression to split log messages
-        '''
+        """
         headers = []
-        splitters = re.split(r'(<[^<>]+>)', logformat)
-        regex = ''
+        splitters = re.split(r"(<[^<>]+>)", logformat)
+        regex = ""
         for k in range(len(splitters)):
             if k % 2 == 0:
-                splitter = re.sub(' +', '\s+', splitters[k])
+                splitter = re.sub(" +", "\s+", splitters[k])
                 regex += splitter
             else:
-                header = splitters[k].strip('<').strip('>')
-                regex += '(?P<%s>.*?)' % header
+                header = splitters[k].strip("<").strip(">")
+                regex += "(?P<%s>.*?)" % header
                 headers.append(header)
-        regex = re.compile('^' + regex + '$')
+        regex = re.compile("^" + regex + "$")
         return headers, regex

@@ -5,15 +5,15 @@ from main.org.core.operators.mutation import *
 
 class Test(unittest.TestCase):
     def test_constructor(self):
-        logfile = ROOT_DIR + '/test/resources/File.log'
-        chrom_gen = ChromosomeGenerator(logfile, 0, '\n', [])
+        logfile = ROOT_DIR + "/test/resources/File.log"
+        chrom_gen = ChromosomeGenerator(logfile, 0, "\n", [])
         chrom_mutator = ChromosomeMutator(chrom_gen)
 
         self.assertEqual(len(chrom_mutator.chGenerator.messages.keys()), 4)
 
     def test_change_template_one_template(self):
-        logfile = ROOT_DIR + '/test/resources/File.log'
-        chrom_gen = ChromosomeGenerator(logfile, 0, '\n', ["'[\w\d\$\-:,\./_ ><\|]*'"])
+        logfile = ROOT_DIR + "/test/resources/File.log"
+        chrom_gen = ChromosomeGenerator(logfile, 0, "\n", ["'[\w\d\$\-:,\./_ ><\|]*'"])
         chrom_mutator = ChromosomeMutator(chrom_gen)
         t = chrom_mutator.chGenerator.generate_template_from_line(8, 0)
         chromosome = Chromosome({8: [t]})
@@ -23,8 +23,10 @@ class Test(unittest.TestCase):
         self.assertEqual(chromosome.templates[8][0].token[3], "#spec#")
         for index in chromosome.templates[8][0].matched_lines:
             for i, word in enumerate(chromosome.templates[8][0].token):
-                self.assertTrue(word == chrom_mutator.chGenerator.messages[8][index].words[i]
-                                or word in {"*", "#spec#"})
+                self.assertTrue(
+                    word == chrom_mutator.chGenerator.messages[8][index].words[i] or word in {"*", "#spec#"}
+                )
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)

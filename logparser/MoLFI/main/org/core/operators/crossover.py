@@ -3,7 +3,7 @@ from ..chromosome.chromosome import Chromosome
 
 
 def multipoint_cx(ch1: Chromosome, ch2: Chromosome):
-    """ apply crossover on two Chromosomes at a randomly selected crossover point
+    """apply crossover on two Chromosomes at a randomly selected crossover point
     :param ch1: first Chromosome
     :param ch2: second Chromosome
     :return: the two modified chromosomes

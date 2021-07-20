@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class Template(object):
     def __init__(self, index, words, logid):
         self._index = index
@@ -32,14 +33,14 @@ class Template(object):
         This internal function is called by the TemplateManager
         class.
         """
-        assert(False)
+        assert False
 
     def _restore_from_json(self, data):
         """Initializes the instance with the provided JSON data.
 
         This internal function is normally called by the initializer.
         """
-        assert(False)
+        assert False
 
     def get_similarity_score(self, new_words):
         """Retruens a similarity score.
@@ -50,20 +51,21 @@ class Template(object):
         Returns:
           score: in float.
         """
-        assert(False)
+        assert False
 
     def update(self, new_words):
-        """Updates the template data using the supplied new_words.
-        """
-        assert(False)
+        """Updates the template data using the supplied new_words."""
+        assert False
 
     def __str__(self):
-        template = ' '.join([self.words[idx] if self.words[idx] != '' else '*' for idx in range(self.nwords)])
-        return '{index}({nwords})({counts}):{template}'.format(
+        template = " ".join([self.words[idx] if self.words[idx] != "" else "*" for idx in range(self.nwords)])
+        return "{index}({nwords})({counts}):{template}".format(
             index=self.index,
             nwords=self.nwords,
             counts=self._counts,
-            template=' '.join([self.words[idx] if self.words[idx] != '' else '*' for idx in range(self.nwords)]))
+            template=" ".join([self.words[idx] if self.words[idx] != "" else "*" for idx in range(self.nwords)]),
+        )
+
 
 class TemplateManager(object):
     def __init__(self):
@@ -84,8 +86,7 @@ class TemplateManager(object):
           A template instance.
 
         """
-        assert(False)
-
+        assert False
 
     def dump_template(self, index):
         """Dumps a specified template data structure usually in a text
@@ -97,7 +98,7 @@ class TemplateManager(object):
         Returns:
           A serialized text data of the specified template.
         """
-        assert(False)
+        assert False
 
     def restore_template(self, data):
         """Creates a template instance from data (usually a serialized
@@ -111,7 +112,7 @@ class TemplateManager(object):
         Returns:
           A template instance.
         """
-        assert(False)
+        assert False
 
     def _append_template(self, template):
         """Append a template.
@@ -125,6 +126,6 @@ class TemplateManager(object):
         Returns:
           template: the appended template.
         """
-        assert(template.index == len(self.templates))
+        assert template.index == len(self.templates)
         self.templates.append(template)
         return template

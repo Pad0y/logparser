@@ -24,8 +24,7 @@ def main(chrom_gen):
 
     class ClassContainer:
         def __init__(self, ch: Chromosome):
-            """ A container that generates a Chromosome object
-            """
+            """A container that generates a Chromosome object"""
             self.chromosome = ch
 
     creator.create("FitnessMulti", base.Fitness, weights=(1.0, 1.0))
@@ -218,17 +217,20 @@ def main(chrom_gen):
     # pareto is a dict with three elements
     # key : name of the point from the pareto front
     # value: chromosome
-    pareto = {'Knee_Solution': knee_solution.chromosome,
-              'Knee_Solution_1': knee_solution1.chromosome,
-              'Mid_Solution': mid_solution.chromosome
-              }
+    pareto = {
+        "Knee_Solution": knee_solution.chromosome,
+        "Knee_Solution_1": knee_solution1.chromosome,
+        "Mid_Solution": mid_solution.chromosome,
+    }
 
-    #return the three best points
+    # return the three best points
     #       the logbook to see the variation of specificity and frequency values
     #       the execution time
     #       the Non dominated points from the last population
     # return pareto, logbook, execution_time, pop
-    return pareto  #, logbook, pop
+    return pareto  # , logbook, pop
+
+
 #
 # if __name__ == "__main__":
 #     log_file = ROOT_DIR + "/run_experiments/datasets/Proprietary/2K_log/2K_log_messages.log"
@@ -240,19 +242,19 @@ def main(chrom_gen):
 #     for i in pareto.keys():
 #         print(pareto[i].chromosome.to_string())
 
-    ############################
-    # plt.scatter(front[:,0], front[:,1], c="r", marker='o')
-    # # print the mid_pt
-    # plt.scatter(mid_pt[0], mid_pt[1], c='b', marker='*')
-    # plt.scatter(mid_x, mid_y, c='black', marker='*')
-    # # print the knee point
-    # plt.scatter(max_spec, max_freq, c='black', marker='^')
-    # plt.scatter(knee_pt[0], knee_pt[1], c='g', marker='^')
-    # # print the knee11 point
-    # plt.scatter(knee_pt1[0], knee_pt1[1], c='y', marker='+')
-    # plt.axis("tight")
-    #
-    # plt.xlabel('Specificity')
-    # plt.ylabel('Frequency')
-    #
-    # plt.show()
+############################
+# plt.scatter(front[:,0], front[:,1], c="r", marker='o')
+# # print the mid_pt
+# plt.scatter(mid_pt[0], mid_pt[1], c='b', marker='*')
+# plt.scatter(mid_x, mid_y, c='black', marker='*')
+# # print the knee point
+# plt.scatter(max_spec, max_freq, c='black', marker='^')
+# plt.scatter(knee_pt[0], knee_pt[1], c='g', marker='^')
+# # print the knee11 point
+# plt.scatter(knee_pt1[0], knee_pt1[1], c='y', marker='+')
+# plt.axis("tight")
+#
+# plt.xlabel('Specificity')
+# plt.ylabel('Frequency')
+#
+# plt.show()

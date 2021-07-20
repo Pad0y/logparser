@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import cosine_similarity
 import template
 
+
 class LenmaTemplate(template.Template):
     def __init__(self, index=None, words=None, logid=None, json=None):
         if json is not None:
@@ -17,8 +18,8 @@ class LenmaTemplate(template.Template):
             self._restore_from_json(json)
         else:
             # initialize with the specified index and words vlaues.
-            assert(index is not None)
-            assert(words is not None)
+            assert index is not None
+            assert words is not None
             self._index = index
             self._words = words
             self._nwords = len(words)
@@ -35,29 +36,23 @@ class LenmaTemplate(template.Template):
         return json.dumps([self.index, self.words, self.nwords, self.wordlens, self.counts])
 
     def _restore_from_json(self, data):
-        (self._index,
-         self._words,
-         self._nwords,
-         self._wordlens,
-         self._counts) = json.loads(data)
+        (self._index, self._words, self._nwords, self._wordlens, self._counts) = json.loads(data)
 
     def _try_update(self, new_words):
-        try_update = [self.words[idx] if self._words[idx] == new_words[idx]
-                      else '' for idx in range(self.nwords)]
-        if (self.nwords - try_update.count('')) < 3:
+        try_update = [self.words[idx] if self._words[idx] == new_words[idx] else "" for idx in range(self.nwords)]
+        if (self.nwords - try_update.count("")) < 3:
             return False
         return True
 
     def _get_accuracy_score(self, new_words):
         # accuracy score
         # wildcard word matches any words
-        fill_wildcard = [self.words[idx] if self.words[idx] != ''
-                         else new_words[idx] for idx in range(self.nwords)]
+        fill_wildcard = [self.words[idx] if self.words[idx] != "" else new_words[idx] for idx in range(self.nwords)]
         ac_score = accuracy_score(fill_wildcard, new_words)
         return ac_score
 
     def _get_wcr(self):
-        return self.words.count('') / self.nwords
+        return self.words.count("") / self.nwords
 
     def _get_accuracy_score2(self, new_words):
         # accuracy score 2
@@ -74,9 +69,8 @@ class LenmaTemplate(template.Template):
         return cos_score
 
     def _get_similarity_score_jaccard(self, new_words):
-        ws = set(self.words) - set('')
-        nws = set([new_words[idx] if self.words[idx] != '' else ''
-                   for idx in range(len(new_words))]) - set('')
+        ws = set(self.words) - set("")
+        nws = set([new_words[idx] if self.words[idx] != "" else "" for idx in range(len(new_words))]) - set("")
         return len(ws & nws) / len(ws | nws)
 
     def _count_same_word_positions(self, new_words):
@@ -93,7 +87,7 @@ class LenmaTemplate(template.Template):
 
         # check exact match
         ac_score = self._get_accuracy_score(new_words)
-        if  ac_score == 1:
+        if ac_score == 1:
             return 1
 
         cos_score = self._get_similarity_score_cosine(new_words)
@@ -129,27 +123,25 @@ class LenmaTemplate(template.Template):
 
     def update(self, new_words, logid):
         self._counts += 1
-        self._wordlens = [len(w) for w in new_words] 
-        #self._wordlens = [(self._wordlens[idx] + len(new_words[idx])) / 2
+        self._wordlens = [len(w) for w in new_words]
+        # self._wordlens = [(self._wordlens[idx] + len(new_words[idx])) / 2
         #                  for idx in range(self.nwords)]
-        self._words = [self.words[idx] if self._words[idx] == new_words[idx]
-                       else '' for idx in range(self.nwords)]
+        self._words = [self.words[idx] if self._words[idx] == new_words[idx] else "" for idx in range(self.nwords)]
         self._logid.append(logid)
 
     def print_wordlens(self):
-        print('{index}({nwords})({counts}):{vectors}'.format(
-            index=self.index,
-            nwords=self.nwords,
-            counts=self._counts,
-            vectors=self._wordlens))
+        print(
+            "{index}({nwords})({counts}):{vectors}".format(
+                index=self.index, nwords=self.nwords, counts=self._counts, vectors=self._wordlens
+            )
+        )
 
     def get_logids(self):
         return self._logid
 
+
 class LenmaTemplateManager(template.TemplateManager):
-    def __init__(self,
-                 threshold=0.9,
-                 predefined_templates=None):
+    def __init__(self, threshold=0.9, predefined_templates=None):
         self._templates = []
         self._threshold = threshold
         if predefined_templates:
@@ -175,19 +167,19 @@ class LenmaTemplateManager(template.TemplateManager):
             candidates.append((index, score))
         candidates.sort(key=lambda c: c[1], reverse=True)
         if False:
-            for (i,s) in candidates:
-                print('    ', s, self.templates[i])
-        
+            for (i, s) in candidates:
+                print("    ", s, self.templates[i])
+
         if len(candidates) > 0:
             index = candidates[0][0]
             self.templates[index].update(words, logid)
             return self.templates[index]
 
-        new_template = self._append_template(
-            LenmaTemplate(len(self.templates), words, logid))
+        new_template = self._append_template(LenmaTemplate(len(self.templates), words, logid))
         return new_template
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import datetime
     import sys
 
@@ -201,7 +193,7 @@ if __name__ == '__main__':
     while line:
         if False:
             if nlines % 1000 == 0:
-                print('{0} {1} {2}'.format(nlines, datetime.datetime.now().timestamp(), len(templ_mgr.templates)))
+                print("{0} {1} {2}".format(nlines, datetime.datetime.now().timestamp(), len(templ_mgr.templates)))
             nlines = nlines + 1
         (month, day, timestr, host, words) = parser.parse(line)
         t = templ_mgr.infer_template(words)

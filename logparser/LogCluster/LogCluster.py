@@ -12,11 +12,35 @@ from datetime import datetime
 import subprocess
 
 
-class LogParser():
-    def __init__(self, indir, log_format, outdir, rex =[], support=None, rsupport=None, separator=None, lfilter=None, template=None,
-                 lcfunc=None, syslog=None, wsize=None, csize=None, wweight=None, weightf=None, wfreq=None, wfilter=None,
-                 wsearch=None, wrplace=None, wcfunc=None, outliers=None, readdump=None,
-                 writedump=None, readwords=None, writewords=None):
+class LogParser:
+    def __init__(
+        self,
+        indir,
+        log_format,
+        outdir,
+        rex=[],
+        support=None,
+        rsupport=None,
+        separator=None,
+        lfilter=None,
+        template=None,
+        lcfunc=None,
+        syslog=None,
+        wsize=None,
+        csize=None,
+        wweight=None,
+        weightf=None,
+        wfreq=None,
+        wfilter=None,
+        wsearch=None,
+        wrplace=None,
+        wcfunc=None,
+        outliers=None,
+        readdump=None,
+        writedump=None,
+        readwords=None,
+        writewords=None,
+    ):
         """
         Arguments
         ---------
@@ -44,14 +68,55 @@ class LogParser():
         self.path = indir
         self.log_format = log_format
         self.savepath = outdir
-        self.paras = [support, rsupport, separator, lfilter, template,
-                      lcfunc, syslog, wsize, csize, wweight, weightf, wfreq,
-                      wfilter, wsearch, wrplace, wcfunc, outliers, readdump, writedump,
-                      readwords, writewords]
-        self.paranames = ["support", "rsupport", "separator", "lfilter", "template", "lcfunc", "syslog",
-                          "wsize", "csize", "wweight", "weightf", "wfreq", "wfilter", "wsearch", "wrplace",
-                          "wcfunc", "outliers", "readdump", "writedump", "readwords", "writewords"]
-        self.perl_command = "perl {} --input {}".format(os.path.join(os.path.dirname(__file__), 'logcluster.pl'), "logcluster_input.log")
+        self.paras = [
+            support,
+            rsupport,
+            separator,
+            lfilter,
+            template,
+            lcfunc,
+            syslog,
+            wsize,
+            csize,
+            wweight,
+            weightf,
+            wfreq,
+            wfilter,
+            wsearch,
+            wrplace,
+            wcfunc,
+            outliers,
+            readdump,
+            writedump,
+            readwords,
+            writewords,
+        ]
+        self.paranames = [
+            "support",
+            "rsupport",
+            "separator",
+            "lfilter",
+            "template",
+            "lcfunc",
+            "syslog",
+            "wsize",
+            "csize",
+            "wweight",
+            "weightf",
+            "wfreq",
+            "wfilter",
+            "wsearch",
+            "wrplace",
+            "wcfunc",
+            "outliers",
+            "readdump",
+            "writedump",
+            "readwords",
+            "writewords",
+        ]
+        self.perl_command = "perl {} --input {}".format(
+            os.path.join(os.path.dirname(__file__), "logcluster.pl"), "logcluster_input.log"
+        )
         for idx, para in enumerate(self.paras):
             if para:
                 self.perl_command += " -{} {}".format(self.paranames[idx], para)
@@ -61,18 +126,18 @@ class LogParser():
     def parse(self, filename):
         start_time = datetime.now()
         filepath = os.path.join(self.path, filename)
-        print('Parsing file: ' + filepath)
+        print("Parsing file: " + filepath)
         self.filename = filename
         headers, regex = self.generate_logformat_regex(self.log_format)
         self.df_log = self.log_to_dataframe(filepath, regex, headers, self.log_format)
-        with open('logcluster_input.log', 'w') as fw:
-            for line in self.df_log['Content']:
+        with open("logcluster_input.log", "w") as fw:
+            for line in self.df_log["Content"]:
                 if self.rex:
                     for currentRex in self.rex:
-                        line = re.sub(currentRex, '', line)
-                fw.write(line + '\n')
+                        line = re.sub(currentRex, "", line)
+                fw.write(line + "\n")
         try:
-            print ("Run LogCluster command...\n>> {}".format(self.perl_command))
+            print("Run LogCluster command...\n>> {}".format(self.perl_command))
             subprocess.check_call(self.perl_command, shell=True)
         except:
             print("LogCluster run failed! Please check perl installed.\n")
@@ -80,8 +145,7 @@ class LogParser():
         self.wirteResultToFile()
         os.remove("logcluster_input.log")
         os.remove("logcluster_output.txt")
-        print('Parsing done. [Time taken: {!s}]'.format(datetime.now() - start_time))
-
+        print("Parsing done. [Time taken: {!s}]".format(datetime.now() - start_time))
 
     def wirteResultToFile(self):
         if not os.path.isdir(self.savepath):
@@ -92,12 +156,12 @@ class LogParser():
         Events = []
         Occurrences = []
         EventIdx = 0
-        with open("logcluster_output.txt", 'r') as fr:
+        with open("logcluster_output.txt", "r") as fr:
             for line in fr:
-                line = line.split('\t')
-                lineNums = line[1].split(',')
+                line = line.split("\t")
+                lineNums = line[1].split(",")
                 Events.append(line[0].strip())
-                EventIdx_hash.append(hashlib.md5(line[0].encode('utf-8')).hexdigest()[0:8])
+                EventIdx_hash.append(hashlib.md5(line[0].encode("utf-8")).hexdigest()[0:8])
                 Occurrences.append(line[2].strip())
                 for num in lineNums:
                     LineID_EventIdx[int(num)] = EventIdx
@@ -108,17 +172,16 @@ class LogParser():
         for i in range(self.df_log.shape[0]):
             i += 1
             e_idx = LineID_EventIdx.get(i, -1)
-            if e_idx != -1 :
+            if e_idx != -1:
                 EventTemplate.append(Events[e_idx])
                 EventId.append(EventIdx_hash[e_idx])
             else:
-                content = self.df_log.iloc[i-1]["Content"]
+                content = self.df_log.iloc[i - 1]["Content"]
                 EventTemplate.append(content)
-                EventId.append(hashlib.md5(content.encode('utf-8')).hexdigest()[0:8])
+                EventId.append(hashlib.md5(content.encode("utf-8")).hexdigest()[0:8])
 
         self.df_log["EventId"] = EventId
         self.df_log["EventTemplate"] = EventTemplate
-        
 
         # eventDF = pd.DataFrame()
         # eventDF['EventId'] = EventIdx_hash
@@ -127,20 +190,18 @@ class LogParser():
 
         # eventDF.to_csv(os.path.join(self.savepath, self.filename + '_templates.csv'), index=False)
 
-
-        occ_dict = dict(self.df_log['EventTemplate'].value_counts())
+        occ_dict = dict(self.df_log["EventTemplate"].value_counts())
         df_event = pd.DataFrame()
-        df_event['EventTemplate'] = self.df_log['EventTemplate'].unique()
-        df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
-        df_event['EventId'] = df_event['EventTemplate'].map(lambda x: hashlib.md5(x.encode('utf-8')).hexdigest()[0:8])
-        self.df_log.to_csv(os.path.join(self.savepath, self.filename + '_structured.csv'), index=False)
+        df_event["EventTemplate"] = self.df_log["EventTemplate"].unique()
+        df_event["Occurrences"] = df_event["EventTemplate"].map(occ_dict)
+        df_event["EventId"] = df_event["EventTemplate"].map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest()[0:8])
+        self.df_log.to_csv(os.path.join(self.savepath, self.filename + "_structured.csv"), index=False)
 
     def log_to_dataframe(self, log_file, regex, headers, logformat):
-        """ Function to transform log file to dataframe 
-        """
+        """Function to transform log file to dataframe"""
         log_messages = []
         linecount = 0
-        with open(log_file, 'r') as fin:
+        with open(log_file, "r") as fin:
             for line in fin.readlines():
                 try:
                     match = regex.search(line.strip())
@@ -150,23 +211,22 @@ class LogParser():
                 except Exception as e:
                     pass
         logdf = pd.DataFrame(log_messages, columns=headers)
-        logdf.insert(0, 'LineId', None)
-        logdf['LineId'] = [i + 1 for i in range(linecount)]
+        logdf.insert(0, "LineId", None)
+        logdf["LineId"] = [i + 1 for i in range(linecount)]
         return logdf
 
     def generate_logformat_regex(self, logformat):
-        """ Function to generate regular expression to split log messages
-        """
+        """Function to generate regular expression to split log messages"""
         headers = []
-        splitters = re.split(r'(<[^<>]+>)', logformat)
-        regex = ''
+        splitters = re.split(r"(<[^<>]+>)", logformat)
+        regex = ""
         for k in range(len(splitters)):
             if k % 2 == 0:
-                splitter = re.sub(' +', '\s+', splitters[k])
+                splitter = re.sub(" +", "\s+", splitters[k])
                 regex += splitter
             else:
-                header = splitters[k].strip('<').strip('>')
-                regex += '(?P<%s>.*?)' % header
+                header = splitters[k].strip("<").strip(">")
+                regex += "(?P<%s>.*?)" % header
                 headers.append(header)
-        regex = re.compile('^' + regex + '$')
+        regex = re.compile("^" + regex + "$")
         return headers, regex

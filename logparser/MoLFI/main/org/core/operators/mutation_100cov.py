@@ -8,9 +8,8 @@ from ..utility.match_utility import compute_matched_lines, remove_sub_templates,
 
 
 class ChromosomeMutator100cov(ChromosomeMutator):
-
     def apply_mutation(self, ch: Chromosome):
-        """ Applies mutation on a chromosome
+        """Applies mutation on a chromosome
         modify an existing template from a cluster
         :param ch: chromosome to mutate
         :return: the modified chromosome
@@ -28,9 +27,9 @@ class ChromosomeMutator100cov(ChromosomeMutator):
                 compute_matched_lines(self.chGenerator.messages, ch.templates[cluster_id][template_index])
 
         # add templates to reach 100% coverage if not satisfied for the modified cluster
-        #if random.random() <= 0.50:
+        # if random.random() <= 0.50:
         remove_sub_templates(ch, cluster_id)
-        #else:
+        # else:
         #    remove_super_templates(ch, cluster_id)
         self.add_template_to_reach_100cov(ch, cluster_id)
 

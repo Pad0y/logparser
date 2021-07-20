@@ -7,7 +7,7 @@ def apply_tournament_selection(individuals, tot_rounds: int):
     based on crowding distance (CD). The *individuals* sequence length has to
     be a multiple of 4. Starting from the beginning of the selected
     individuals, two consecutive individuals will be different (assuming all
-    individuals in the input list are unique). 
+    individuals in the input list are unique).
 
     This selection requires the individuals to have a :attr:`crowding_dist`
     attribute, which can be set by the :func:`assignCrowdingDist` function.
@@ -18,7 +18,7 @@ def apply_tournament_selection(individuals, tot_rounds: int):
     """
     winner = random.choice(individuals)
 
-    for i in range(0, tot_rounds-1):
+    for i in range(0, tot_rounds - 1):
         ind = random.choice(individuals)
 
         if ind.fitness.dominates(winner.fitness):

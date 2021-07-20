@@ -16,12 +16,13 @@ import hashlib
 
 
 class Para:
-    def __init__(self, path, rex, savePath, groupNum, logformat): 
+    def __init__(self, path, rex, savePath, groupNum, logformat):
         self.path = path
         self.rex = rex
         self.savePath = savePath
         self.groupNum = groupNum  # partition into k groups
         self.logformat = logformat
+
 
 class LogParser:
     def __init__(self, indir, outdir, groupNum, log_format, rex=[], seed=0):
@@ -37,29 +38,29 @@ class LogParser:
         self.seed = seed
 
     def loadLog(self):
-        """ Load datasets and use regular expression to split it and remove some columns 
-        """
-        print('Loading logs...')
+        """Load datasets and use regular expression to split it and remove some columns"""
+        print("Loading logs...")
         headers, regex = self.generate_logformat_regex(self.para.logformat)
-        self.df_log = self.log_to_dataframe(os.path.join(self.para.path, self.logname), regex, headers,
-                                            self.para.logformat)
+        self.df_log = self.log_to_dataframe(
+            os.path.join(self.para.path, self.logname), regex, headers, self.para.logformat
+        )
         for idx, line in self.df_log.iterrows():
-            line = line['Content']
+            line = line["Content"]
             if self.para.rex:
                 for currentRex in self.para.rex:
-                    line = re.sub(currentRex, '', line)
+                    line = re.sub(currentRex, "", line)
 
             wordSeq = line.strip().split()
             self.wordLL.append(tuple(wordSeq))
 
     def termpairGene(self):
-        print('Generating term pairs...')
+        print("Generating term pairs...")
         i = 0
         for wordL in self.wordLL:
             wordLT = []
             for j in range(len(wordL)):
                 for k in range(j + 1, len(wordL), 1):
-                    if wordL[j] != '[$]' and wordL[k] != '[$]':
+                    if wordL[j] != "[$]" and wordL[k] != "[$]":
                         termpair = (wordL[j], wordL[k])
                         wordLT.append(termpair)
             self.termpairLLT.append(wordLT)
@@ -94,19 +95,20 @@ class LogParser:
             i += 1
 
     def LogMessParti(self):
-        """ Use local search, for each log, find the group that it should be moved to.
-            in this process, termpairs occurange should also make some changes and logNumber 
-            of corresponding should be changed
+        """Use local search, for each log, find the group that it should be moved to.
+        in this process, termpairs occurange should also make some changes and logNumber
+        of corresponding should be changed
         """
-        print('Log message partitioning...')
+        print("Log message partitioning...")
         changed = True
         while changed:
             changed = False
             i = 0
             for termpairLT in self.termpairLLT:
                 curGroup = self.groupIndex[i]
-                alterGroup = potenFunc(curGroup, self.termPairLogNumLD, self.logNumPerGroup, i, termpairLT,
-                                       self.para.groupNum)
+                alterGroup = potenFunc(
+                    curGroup, self.termPairLogNumLD, self.logNumPerGroup, i, termpairLT, self.para.groupNum
+                )
                 if curGroup != alterGroup:
                     changed = True
                     self.groupIndex[i] = alterGroup
@@ -126,10 +128,10 @@ class LogParser:
                 i += 1
 
     def signatConstr(self):
-        """ Calculate the occurancy of each word of each group, and for each group, save the words that
-            happen more than half all log number to be candidateTerms(list of dict, words:frequency),
+        """Calculate the occurancy of each word of each group, and for each group, save the words that
+        happen more than half all log number to be candidateTerms(list of dict, words:frequency),
         """
-        print('Log message signature construction...')
+        print("Log message signature construction...")
         # create the folder to save the resulted templates
         if not os.path.exists(self.para.savePath):
             os.makedirs(self.para.savePath)
@@ -196,8 +198,8 @@ class LogParser:
     def writeResultToFile(self):
         idx_eventID = {}
         for idx, item in enumerate(self.signature):
-            eventStr = ' '.join(item)
-            idx_eventID[idx] = hashlib.md5(eventStr.encode('utf-8')).hexdigest()[0:8]
+            eventStr = " ".join(item)
+            idx_eventID[idx] = hashlib.md5(eventStr.encode("utf-8")).hexdigest()[0:8]
 
         EventId = []
         EventTemplate = []
@@ -205,30 +207,33 @@ class LogParser:
         for idx, item in enumerate(self.logIndexPerGroup):
             for LineId in item:
                 LineId_groupId.append([LineId, idx])
-        LineId_groupId.sort(key=lambda x:x[0])
+        LineId_groupId.sort(key=lambda x: x[0])
         for item in LineId_groupId:
             GroupID = item[1]
             EventId.append(idx_eventID[GroupID])
-            EventTemplate.append(' '.join(self.signature[GroupID]))
+            EventTemplate.append(" ".join(self.signature[GroupID]))
 
-        self.df_log['EventId'] = EventId
-        self.df_log['EventTemplate'] = EventTemplate
-        self.df_log.to_csv(os.path.join(self.para.savePath, self.logname + '_structured.csv'), index=False)
+        self.df_log["EventId"] = EventId
+        self.df_log["EventTemplate"] = EventTemplate
+        self.df_log.to_csv(os.path.join(self.para.savePath, self.logname + "_structured.csv"), index=False)
 
-
-        occ_dict = dict(self.df_log['EventTemplate'].value_counts())
+        occ_dict = dict(self.df_log["EventTemplate"].value_counts())
         df_event = pd.DataFrame()
-        df_event['EventTemplate'] = self.df_log['EventTemplate'].unique()
-        df_event['EventId'] = df_event['EventTemplate'].map(lambda x: hashlib.md5(x.encode('utf-8')).hexdigest()[0:8])
-        df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
+        df_event["EventTemplate"] = self.df_log["EventTemplate"].unique()
+        df_event["EventId"] = df_event["EventTemplate"].map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest()[0:8])
+        df_event["Occurrences"] = df_event["EventTemplate"].map(occ_dict)
 
-        df_event.to_csv(os.path.join(self.para.savePath, self.logname + '_templates.csv'), index=False, columns=["EventId", "EventTemplate","Occurrences"])
+        df_event.to_csv(
+            os.path.join(self.para.savePath, self.logname + "_templates.csv"),
+            index=False,
+            columns=["EventId", "EventTemplate", "Occurrences"],
+        )
 
     def log_to_dataframe(self, log_file, regex, headers, logformat):
-        """ Function to transform log file to dataframe """
+        """Function to transform log file to dataframe"""
         log_messages = []
         linecount = 0
-        with open(log_file, 'r') as fin:
+        with open(log_file, "r") as fin:
             for line in fin.readlines():
                 try:
                     match = regex.search(line.strip())
@@ -238,30 +243,30 @@ class LogParser:
                 except Exception as e:
                     pass
         logdf = pd.DataFrame(log_messages, columns=headers)
-        logdf.insert(0, 'LineId', None)
-        logdf['LineId'] = [i + 1 for i in range(linecount)]
+        logdf.insert(0, "LineId", None)
+        logdf["LineId"] = [i + 1 for i in range(linecount)]
         return logdf
 
     def generate_logformat_regex(self, logformat):
-        """ 
+        """
         Function to generate regular expression to split log messages
         """
         headers = []
-        splitters = re.split(r'(<[^<>]+>)', logformat)
-        regex = ''
+        splitters = re.split(r"(<[^<>]+>)", logformat)
+        regex = ""
         for k in range(len(splitters)):
             if k % 2 == 0:
-                splitter = re.sub(' +', '\s+', splitters[k])
+                splitter = re.sub(" +", "\s+", splitters[k])
                 regex += splitter
             else:
-                header = splitters[k].strip('<').strip('>')
-                regex += '(?P<%s>.*?)' % header
+                header = splitters[k].strip("<").strip(">")
+                regex += "(?P<%s>.*?)" % header
                 headers.append(header)
-        regex = re.compile('^' + regex + '$')
+        regex = re.compile("^" + regex + "$")
         return headers, regex
 
     def parse(self, logname):
-        print('Parsing file: ' + os.path.join(self.para.path, logname))
+        print("Parsing file: " + os.path.join(self.para.path, logname))
         start_time = datetime.now()
         self.logname = logname
         self.loadLog()
@@ -269,7 +274,7 @@ class LogParser:
         self.LogMessParti()
         self.signatConstr()
         self.writeResultToFile()
-        print('Parsing done. [Time taken: {!s}]'.format(datetime.now() - start_time))
+        print("Parsing done. [Time taken: {!s}]".format(datetime.now() - start_time))
 
 
 def potenFunc(curGroupIndex, termPairLogNumLD, logNumPerGroup, lineNum, termpairLT, k):
@@ -290,10 +295,10 @@ def getDeltaD(logNumPerGroup, termPairLogNumLD, groupI, groupJ, lineNum, termpai
     Cj = logNumPerGroup[groupJ]
     for r in termpairLT:
         if r in termPairLogNumLD[groupJ]:
-            deltaD += (pow(((termPairLogNumLD[groupJ][r] + 1) / (Cj + 1.0)), 2) \
-                       - pow((termPairLogNumLD[groupI][r] / (Ci + 0.0)), 2))
+            deltaD += pow(((termPairLogNumLD[groupJ][r] + 1) / (Cj + 1.0)), 2) - pow(
+                (termPairLogNumLD[groupI][r] / (Ci + 0.0)), 2
+            )
         else:
-            deltaD += (pow((1 / (Cj + 1.0)), 2) - pow((termPairLogNumLD[groupI][r] / (Ci + 0.0)), 2))
+            deltaD += pow((1 / (Cj + 1.0)), 2) - pow((termPairLogNumLD[groupI][r] / (Ci + 0.0)), 2)
     deltaD = deltaD * 3
     return deltaD
-

@@ -3,9 +3,11 @@ from ..chromosome.chromosome import Chromosome
 from ..chromosome.template import Template
 
 random.seed(0)
+
+
 def check_variable_parts(chromosome: Chromosome, messages: dict):
-    """ checks each variable element in a template agiants the values of the matched lines
-    
+    """checks each variable element in a template agiants the values of the matched lines
+
     :param chromosome: the chromosome with the templates
     :param messages: the original log messages
     :return: possibly corrected templates
@@ -39,8 +41,8 @@ def fix_all_star_template(ch: Chromosome, cluster_id: int, template_index: int, 
     if is_all_star_template(ch.templates[cluster_id][template_index]):
         star_indexes = list()
         template = ch.templates[cluster_id][template_index]
-        for index in range(0, template.get_length()-1):
-            if template.token[index] == '*':
+        for index in range(0, template.get_length() - 1):
+            if template.token[index] == "*":
                 star_indexes.append(index)
         if len(star_indexes) > 0:
             # print(star_indexes)

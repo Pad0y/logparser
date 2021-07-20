@@ -8,12 +8,11 @@ from main.org.core.utility.Chromosome_Generator import ChromosomeGenerator
 
 
 class Test(unittest.TestCase):
-
     def test_apply_mutation(self):
-        logfile = ROOT_DIR + '/test/resources/File.log'
-        chrom_gen = ChromosomeGenerator(logfile, 0, '\n', ["'[\w\d\$\-:,\./_ ><\|]*'"])
+        logfile = ROOT_DIR + "/test/resources/File.log"
+        chrom_gen = ChromosomeGenerator(logfile, 0, "\n", ["'[\w\d\$\-:,\./_ ><\|]*'"])
         chrom_mutator_100 = ChromosomeMutator100cov(chrom_gen)
-        template = Template(['Driver', ':', '*'])
+        template = Template(["Driver", ":", "*"])
         template.matched_lines = [5]
         chromosome = Chromosome({3: [template]})
         chrom_mutator_100.apply_mutation(chromosome)
@@ -25,10 +24,10 @@ class Test(unittest.TestCase):
         self.assertEqual(len(set(chromosome_matched_lines)), len(chrom_gen.messages[3]))
 
     def test_add_template_to_reach_100cov(self):
-        logfile = ROOT_DIR + '/test/resources/File.log'
-        chrom_gen = ChromosomeGenerator(logfile, 0, '\n', ["'[\w\d\$\-:,\./_ ><\|]*'"])
+        logfile = ROOT_DIR + "/test/resources/File.log"
+        chrom_gen = ChromosomeGenerator(logfile, 0, "\n", ["'[\w\d\$\-:,\./_ ><\|]*'"])
         chrom_mutator_100 = ChromosomeMutator100cov(chrom_gen)
-        template = Template(['Message', 'sent', 'by', 'EEE', ',', 'at', 'port', '1'])
+        template = Template(["Message", "sent", "by", "EEE", ",", "at", "port", "1"])
         template.matched_lines = [0]
         chromosome = Chromosome({8: [template]})
         chrom_mutator_100.add_template_to_reach_100cov(chromosome, 8)

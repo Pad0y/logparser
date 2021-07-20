@@ -21,50 +21,17 @@ cmdline = argparse.ArgumentParser(
     \t--oracle: \t\t the oracle file with correct templates\n\
     \t--csv: \t\t the csv file where to save the metrics values after validation\n \
     \t--templ: \t\t the output file where to save the generated templates",
-    description='validation: compare the generated templates by MoLFI against the oracle file '
-                'and returns a csv file with the comparison results.')
-cmdline.add_argument('--chrom',
-                     '-c',
-                     action='store',
-                     help=r'the chromosomes file',
-                     dest='achrom',
-                     required=True
-                     )
-cmdline.add_argument('--time',
-                     '-t',
-                     action='store',
-                     help=r"the execution time",
-                     dest='atime',
-                     required=True
-                     )
-cmdline.add_argument('--oracle',
-                     '-o',
-                     action='store',
-                     help=r"oracle file",
-                     dest='aoracle',
-                     required=True
-                     )
-cmdline.add_argument('--csv',
-                     '-s',
-                     action='store',
-                     help=r"the output csv file",
-                     dest='acsv',
-                     required=True
-                     )
-cmdline.add_argument('--templ',
-                     '-to',
-                     action='store',
-                     help=r'the output file with templates',
-                     dest='atempl',
-                     required=True
-                     )
-cmdline.add_argument('--run',
-                     '-r',
-                     action='store',
-                     help=r'number of run',
-                     dest='arun',
-                     required=True
-                     )
+    description="validation: compare the generated templates by MoLFI against the oracle file "
+    "and returns a csv file with the comparison results.",
+)
+cmdline.add_argument("--chrom", "-c", action="store", help=r"the chromosomes file", dest="achrom", required=True)
+cmdline.add_argument("--time", "-t", action="store", help=r"the execution time", dest="atime", required=True)
+cmdline.add_argument("--oracle", "-o", action="store", help=r"oracle file", dest="aoracle", required=True)
+cmdline.add_argument("--csv", "-s", action="store", help=r"the output csv file", dest="acsv", required=True)
+cmdline.add_argument(
+    "--templ", "-to", action="store", help=r"the output file with templates", dest="atempl", required=True
+)
+cmdline.add_argument("--run", "-r", action="store", help=r"number of run", dest="arun", required=True)
 
 
 args = cmdline.parse_args()
@@ -79,18 +46,28 @@ csv_file = args.acsv
 tmp_file = args.atempl
 run = args.arun
 
-with open(args.achrom, "rb" ) as pk:
+with open(args.achrom, "rb") as pk:
     solutions = pickle.load(pk)
 
-csvfile = open(csv_file, 'a')
+csvfile = open(csv_file, "a")
 writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)
 if os.stat(csv_file).st_size == 0:
-    writer.writerow(('Run', 'Execution Time(s)', 'Point',
-                 'Correct Templates', 'Incorrect Templates',
-                 'Precision', 'Recall', 'Accuracy', 'F-Measure'))
+    writer.writerow(
+        (
+            "Run",
+            "Execution Time(s)",
+            "Point",
+            "Correct Templates",
+            "Incorrect Templates",
+            "Precision",
+            "Recall",
+            "Accuracy",
+            "F-Measure",
+        )
+    )
 
 oracle = OracleTemplates(oracle_file)
-validate_file=open(tmp_file, 'w')
+validate_file = open(tmp_file, "w")
 # validate the generated templates against the oracle
 print("Validating chromosomes\n")
 # validate the three best chromosomes: output of the NSGA_II script
@@ -101,12 +78,22 @@ for key in solutions.keys():
     validate_file.write("\t\t\t Templates: %d:\n\n" % solutions[key].all_templates())
     metrics = validate_chromosome(oracle.messages, solutions[key], validate_file)
 
-    writer.writerow((str(run), exec_time, key,
-                     str(metrics[0]), str(metrics[1]),
-                     str(metrics[2]), str(metrics[3]), str(metrics[4]), str(metrics[5])))
+    writer.writerow(
+        (
+            str(run),
+            exec_time,
+            key,
+            str(metrics[0]),
+            str(metrics[1]),
+            str(metrics[2]),
+            str(metrics[3]),
+            str(metrics[4]),
+            str(metrics[5]),
+        )
+    )
 #
 
-print('Finishing Template Extraction for Run ', str(run))
-print('************************************************************************************************************')
+print("Finishing Template Extraction for Run ", str(run))
+print("************************************************************************************************************")
 validate_file.close()
 csvfile.close()

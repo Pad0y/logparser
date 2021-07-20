@@ -18,7 +18,7 @@ from .main.org.core.metaheuristics.NSGA_II_2D import main
 from datetime import datetime
 
 
-class LogParser():
+class LogParser:
     def __init__(self, indir, outdir, log_format, rex=[], n_workers=1):
         self.input_dir = indir
         self.output_dir = outdir
@@ -37,7 +37,7 @@ class LogParser():
                 return " ".join(template.token)
 
     def parse(self, log_file):
-        starttime = datetime.now() 
+        starttime = datetime.now()
         loader = logloader.LogLoader(self.log_format, self.n_workers)
         log_dataframe = loader.load_to_dataframe(os.path.join(self.input_dir, log_file))
         chrom_gen = ChromosomeGenerator(log_dataframe, self.rex)
@@ -46,16 +46,20 @@ class LogParser():
             for _, templates in solution.templates.items():
                 self.templates.extend(templates)
             break
-        log_dataframe['EventTemplate'] = log_dataframe['Content'].map(self.match_df)
-        log_dataframe['EventId'] = log_dataframe['EventTemplate'].map(lambda x: hashlib.md5(x.encode('utf-8')).hexdigest()[0:8])
+        log_dataframe["EventTemplate"] = log_dataframe["Content"].map(self.match_df)
+        log_dataframe["EventId"] = log_dataframe["EventTemplate"].map(
+            lambda x: hashlib.md5(x.encode("utf-8")).hexdigest()[0:8]
+        )
 
-        occ_dict = dict(log_dataframe['EventTemplate'].value_counts())
+        occ_dict = dict(log_dataframe["EventTemplate"].value_counts())
         df_event = pd.DataFrame()
-        df_event['EventTemplate'] = log_dataframe['EventTemplate'].unique()
-        df_event['Occurrences'] = df_event['EventTemplate'].map(occ_dict)
-        df_event['EventId'] = df_event['EventTemplate'].map(lambda x: hashlib.md5(x.encode('utf-8')).hexdigest()[0:8])
-        df_event.to_csv(os.path.join(self.output_dir, log_file + '_templates.csv'), index=False, columns=["EventId", "EventTemplate", "Occurrences"])
-        log_dataframe.to_csv(os.path.join(self.output_dir, log_file + '_structured.csv'), index=False)
-        print('Parsing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
-        
-
+        df_event["EventTemplate"] = log_dataframe["EventTemplate"].unique()
+        df_event["Occurrences"] = df_event["EventTemplate"].map(occ_dict)
+        df_event["EventId"] = df_event["EventTemplate"].map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest()[0:8])
+        df_event.to_csv(
+            os.path.join(self.output_dir, log_file + "_templates.csv"),
+            index=False,
+            columns=["EventId", "EventTemplate", "Occurrences"],
+        )
+        log_dataframe.to_csv(os.path.join(self.output_dir, log_file + "_structured.csv"), index=False)
+        print("Parsing done. [Time taken: {!s}]".format(datetime.now() - starttime))
