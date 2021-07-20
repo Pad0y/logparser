@@ -7,7 +7,6 @@ from logparser import LogCluster, evaluator
 import os
 import pandas as pd
 
-
 input_dir = "../logs/"  # The input directory of log file
 output_dir = "LogCluster_result/"  # The output directory of parsing results
 
@@ -126,7 +125,6 @@ for dataset, setting in benchmark_settings.iteritems():
         parsedresult=os.path.join(output_dir, log_file + "_structured.csv"),
     )
     bechmark_result.append([dataset, F1_measure, accuracy])
-
 
 print("\n=== Overall evaluation results ===")
 df_result = pd.DataFrame(bechmark_result, columns=["Dataset", "F1_measure", "Accuracy"])

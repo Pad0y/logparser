@@ -4,9 +4,7 @@ Author      : LogPAI team
 License     : MIT
 """
 
-import sys
 import pandas as pd
-from collections import defaultdict
 import scipy.misc
 
 

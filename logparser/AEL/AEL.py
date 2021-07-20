@@ -54,7 +54,6 @@ class LogParser:
     def tokenize(self):
         """
         Put logs into bins according to (# of '<*>', # of token)
-
         """
         for idx, log in self.df_log["Content_"].iteritems():
             para_count = 0
@@ -151,6 +150,7 @@ class LogParser:
             index=False,
             columns=["EventId", "EventTemplate", "Occurrences"],
         )
+
     @staticmethod
     def merge_event(e1, e2):
         for pos in range(len(e1.EventToken)):
