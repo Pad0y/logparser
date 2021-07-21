@@ -5,7 +5,7 @@ sys.path.append("../")
 from logparser import AEL
 
 input_dir = "../logs/HDFS/"  # The input directory of log file
-output_dir = "AEL_result/"  # The output directory of parsing results
+output_dir = "../results/AEL_result/"  # The output directory of parsing results
 log_file = "HDFS_2k.log"  # The input log file name
 log_format = "<Date> <Time> <Pid> <Level> <Component>: <Content>"  # HDFS log format
 minEventCount = 2  # The minimum number of events in a bin
